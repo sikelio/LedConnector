@@ -70,9 +70,11 @@
 
             int count = 1;
             int start = 0;
+            int width = 44;
+            int heigth = 11;
             string binaryMessage = "";
 
-            for (int i = 1; i < 11; i++)
+            for (int i = 0; i < heigth; i++)
             {
                 foreach (char letter in message)
                 {
@@ -80,7 +82,7 @@
                     binaryMessage += byteLetter.Substring(start, 5);
                 }
 
-                while (binaryMessage.Length < 44 * count)
+                while (binaryMessage.Length < width * count)
                 {
                     binaryMessage += "0";
                 }

@@ -80,6 +80,19 @@
                 Margin="5,0,0,0"
                 AutoGenerateColumns="True"
                 ItemsSource="{Binding Messages}" />
+
+            <!--
+            <ScrollViewer
+                Grid.Column="1"
+                HorizontalScrollBarVisibility="Hidden"
+                VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="5,0,0,0" Orientation="Vertical">
+                    <Button>
+                        <TextBlock Text="jkl" />
+                    </Button>
+                </StackPanel>
+            </ScrollViewer>
+            -->
         </Grid>
     </Grid>
 </Window>
