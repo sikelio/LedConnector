@@ -19,5 +19,33 @@ namespace LedConnector.Services
 
             return messages;
         }
+
+        public static async Task<bool> AddMessage(Message message)
+        {
+            LedContext db = new();
+            db
+                .Messages
+                .Add(message);
+
+            bool success;
+
+            try
+            {
+                await db
+                    .SaveChangesAsync();
+
+                success = true;
+            }
+            catch
+            {
+                success = false;
+            }
+
+            await db
+                .Database
+                .CloseConnectionAsync();
+
+            return success;
+        }
     }
 }

@@ -23,7 +23,7 @@ namespace LedConnector
 
         private async void SendBtnClick(object sender, RoutedEventArgs e)
         {
-            string message = CreateBinaryMessage();
+            string message = byteLetters.TranslateToBytes(RawMessage.Text);
 
             bool isConnected = await ConnectToInstance();
 
@@ -34,39 +34,6 @@ namespace LedConnector
             }
 
             SendMessage(message);
-        }
-
-        private string CreateBinaryMessage()
-        {
-            string rawMessage = RawMessage.Text;
-
-            if (rawMessage.Length == 0)
-            {
-                return string.Empty;
-            }
-
-            int count = 1;
-            int start = 0;
-            string binaryMessage = "";
-
-            for (int i = 1; i < 11; i++)
-            {
-                foreach (char letter in rawMessage)
-                {
-                    string byteLetter = byteLetters.GetByteLetter(letter.ToString());
-                    binaryMessage += byteLetter.Substring(start, 5);
-                }
-
-                while (binaryMessage.Length < 44 * count)
-                {
-                    binaryMessage += "0";
-                }
-
-                count++;
-                start += 5;
-            }
-
-            return binaryMessage;
         }
     
         private async void SendMessage(string binaryMessage)

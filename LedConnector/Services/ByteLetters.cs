@@ -32,6 +32,7 @@
             byteLetters.Add("X", "0000000000000000101001010001000101001010000000000000000");
             byteLetters.Add("Y", "0000000000000000101001010011100010000100000000000000000");
             byteLetters.Add("Z", "0000000000000000111100001000100010001111000000000000000");
+            byteLetters.Add(" ", "0000000000000000000000000000000000000000000000000000000");
         }
 
         public string GetByteLetter(string letter)
@@ -58,6 +59,37 @@
                 .FirstOrDefault();
 
             return letter.Key;
+        }
+
+        public string TranslateToBytes(string message)
+        {
+            if (message.Length == 0)
+            {
+                return string.Empty;
+            }
+
+            int count = 1;
+            int start = 0;
+            string binaryMessage = "";
+
+            for (int i = 1; i < 11; i++)
+            {
+                foreach (char letter in message)
+                {
+                    string byteLetter = GetByteLetter(letter.ToString());
+                    binaryMessage += byteLetter.Substring(start, 5);
+                }
+
+                while (binaryMessage.Length < 44 * count)
+                {
+                    binaryMessage += "0";
+                }
+
+                count++;
+                start += 5;
+            }
+
+            return binaryMessage;
         }
     }
 }
