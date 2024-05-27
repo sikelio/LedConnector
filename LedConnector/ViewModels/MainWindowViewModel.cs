@@ -71,6 +71,9 @@ namespace LedConnector.ViewModels
                 return;
             }
 
+            MsgButtons.Add(new ShapeBtn(message.BinaryMessage));
+            Messages.Add(message);
+
             MessageBox.Show("Message saved!");
         }
 
