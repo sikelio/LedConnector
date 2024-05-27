@@ -78,7 +78,7 @@ namespace LedConnector.ViewModels
                 return;
             }
 
-            MsgButtons.Add(new ShapeBtn(message.BinaryMessage, EditMsgCmd, DeleteMsgCmd));
+            MsgButtons.Add(new ShapeBtn(message, EditMsgCmd, DeleteMsgCmd));
             Messages.Add(message);
 
             MessageBox.Show("Message saved!");
@@ -91,7 +91,6 @@ namespace LedConnector.ViewModels
 
         private async void EditMessage(object parameter)
         {
-
         }
 
         private bool CanEditMessage(object parameter)
@@ -101,7 +100,28 @@ namespace LedConnector.ViewModels
 
         private async void DeleteMessage(object parameter)
         {
+            if (parameter is ShapeBtn shapeBtn)
+            {
+                MessageBoxResult result = MessageBox.Show("Are you sure you want to delete this message", "Delete confirmation", MessageBoxButton.YesNo);
 
+                if (result == MessageBoxResult.No)
+                {
+                    return;
+                }
+
+                bool success = await Query.DeleteMessage(shapeBtn.Message);
+
+                if (success == false)
+                {
+                    MessageBox.Show("Error during the delete");
+                    return;
+                }
+
+                Messages.Remove(shapeBtn.Message);
+                MsgButtons.Remove(shapeBtn);
+
+                MessageBox.Show("The message have been removed");
+            }
         }
 
         private bool CanDeleteMessage(object parameter)
@@ -123,7 +143,7 @@ namespace LedConnector.ViewModels
 
             foreach (Message message in Messages)
             {
-                MsgButtons.Add(new ShapeBtn(message.BinaryMessage, EditMsgCmd, DeleteMsgCmd));
+                MsgButtons.Add(new ShapeBtn(message, EditMsgCmd, DeleteMsgCmd));
             }
 
             OnPropertyChanged("MsgButtons");

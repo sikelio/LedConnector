@@ -47,5 +47,33 @@ namespace LedConnector.Services
 
             return success;
         }
+
+        public static async Task<bool> DeleteMessage(Message message)
+        {
+            LedContext db = new();
+            db
+                .Messages
+                .Remove(message);
+
+            bool success;
+
+            try
+            {
+                await db
+                    .SaveChangesAsync();
+
+                success = true;
+            }
+            catch
+            {
+                success= false;
+            }
+
+            await db
+                .Database
+                .CloseConnectionAsync();
+
+            return success;
+        }
     }
 }

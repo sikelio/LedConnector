@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Media;
-using System.Windows;
 using System.Windows.Shapes;
 using System.Windows.Input;
+using LedConnector.Models.Database;
 
 namespace LedConnector.Components
 {
@@ -15,13 +15,15 @@ namespace LedConnector.Components
 
         public ICommand EditCmd { get; set; }
         public ICommand DeleteCmd { get; set; }
-        
-        public ShapeBtn(string binaryMsg, ICommand editCmd, ICommand deleteCmd)
+
+        public Message Message { get; set; }
+
+        public ShapeBtn(Message message, ICommand editCmd, ICommand deleteCmd)
         {
             LedShapes = new ObservableCollection<Shape>();
 
             int maxLength = _width * _heigth;
-            binaryMsg = binaryMsg.PadRight(maxLength, '0');
+            string binaryMessage = message.BinaryMessage.PadRight(maxLength, '0');
 
             for (int i = 0; i < maxLength; i++)
             {
@@ -29,7 +31,7 @@ namespace LedConnector.Components
                 {
                     Width = 10,
                     Height = 10,
-                    Fill = binaryMsg[i] == '1' ? Brushes.Green : Brushes.LightGray
+                    Fill = binaryMessage[i] == '1' ? Brushes.Green : Brushes.LightGray
                 };
 
                 LedShapes.Add(rectangle);
@@ -37,6 +39,7 @@ namespace LedConnector.Components
 
             EditCmd = editCmd;
             DeleteCmd = deleteCmd;
+            Message = message;
         }
     }
 }

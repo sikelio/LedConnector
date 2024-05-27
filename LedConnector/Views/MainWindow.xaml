@@ -92,6 +92,7 @@
                                     Width="125"
                                     Margin="5,0,0,10"
                                     Command="{Binding DeleteCmd}"
+                                    CommandParameter="{Binding}"
                                     Content="Delete" />
                                 <Button Margin="10,0,10,10">
                                     <Grid Width="440" Height="110">
