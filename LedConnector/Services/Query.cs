@@ -20,32 +20,28 @@ namespace LedConnector.Services
             return messages;
         }
 
-        public static async Task<bool> AddMessage(Message message)
+        public static async Task<Message> AddMessage(Message message)
         {
             LedContext db = new();
             db
                 .Messages
                 .Add(message);
 
-            bool success;
-
             try
             {
                 await db
                     .SaveChangesAsync();
-
-                success = true;
             }
-            catch
+            catch (Exception ex)
             {
-                success = false;
+                throw new Exception(ex.Message);
             }
 
             await db
                 .Database
                 .CloseConnectionAsync();
 
-            return success;
+            return message;
         }
 
         public static async Task<bool> DeleteMessage(Message message)
@@ -111,6 +107,64 @@ namespace LedConnector.Services
                 .CloseConnectionAsync();
 
             return success;
+        }
+
+        public static async Task<Tag?> FindTagByName(string name)
+        {
+            LedContext db = new();
+            Tag? tag = db
+                .Tags
+                .Where(t => t.Name == name)
+                .FirstOrDefault();
+
+            await db
+                .Database
+                .CloseConnectionAsync();
+
+            return tag;
+        }
+
+        public static async Task<Tag> AddTag(Tag tag)
+        {
+            LedContext db = new();
+            db
+                .Tags
+                .Add(tag);
+
+            try
+            {
+                await db
+                    .SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+            await db
+                .Database
+                .CloseConnectionAsync();
+
+            return tag;
+        }
+
+        public static async Task LinkTagToMessage(int messageId, int tagId)
+        {
+            LedContext db = new();
+            db
+                .MessageTags
+                .Add(new()
+                {
+                    MessageId = messageId,
+                    TagId = tagId
+                });
+
+            await db
+                    .SaveChangesAsync();
+
+            await db
+                .Database
+                .CloseConnectionAsync();
         }
     }
 }

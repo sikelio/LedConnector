@@ -24,11 +24,11 @@ namespace LedConnector.ViewModels
             }
         }
 
-        private ICommand _saveCmd;
-        public ICommand SaveCmd
+        private ICommand _saveMsgCmd;
+        public ICommand SaveMsgCmd
         {
-            get { return _saveCmd; }
-            set { _saveCmd = value; }
+            get { return _saveMsgCmd; }
+            set { _saveMsgCmd = value; }
         }
 
         public ICommand EditMsgCmd { get; set; }
@@ -42,6 +42,17 @@ namespace LedConnector.ViewModels
             {
                 _rawMessage = value;
                 OnPropertyChanged("RawMessage");
+            }
+        }
+
+        private string _tags;
+        public string Tags
+        {
+            get { return _tags; }
+            set
+            {
+                _tags = value;
+                OnPropertyChanged("Tags");
             }
         }
 
@@ -64,7 +75,7 @@ namespace LedConnector.ViewModels
 
         public MainWindowViewModel()
         {
-            SaveCmd = new RelayCommand(SaveMessage, CanSaveMessage);
+            SaveMsgCmd = new RelayCommand(SaveMessage, CanSaveMessage);
             EditMsgCmd = new RelayCommand(EditMessage, CanEditMessage);
             DeleteMsgCmd = new RelayCommand(DeleteMessage, CanDeleteMessage);
             
@@ -86,18 +97,38 @@ namespace LedConnector.ViewModels
                 BinaryMessage = byteLetters.TranslateToBytes(_rawMessage)
             };
 
-            bool saveSuccess = await Query.AddMessage(message);
-
-            if (saveSuccess == false)
-            {
-                MessageBox.Show("Error during message save!");
-                return;
-            }
+            Message msg = await Query.AddMessage(message);
+            await SaveTags(msg.Id);
 
             MsgButtons.Add(new ShapeBtn(message, EditMsgCmd, DeleteMsgCmd));
             Messages.Add(message);
 
             MessageBox.Show("Message saved!");
+        }
+
+        private async Task SaveTags(int messageId)
+        {
+            if (string.IsNullOrEmpty(_tags))
+            {
+                return;
+            }
+
+            string[] tags = _tags.Split(',');
+
+            foreach (string tag in tags)
+            {
+                Tag? potentialTag = await Query.FindTagByName(tag.Trim());
+
+                if (potentialTag == null)
+                {
+                    Tag newTag = await Query.AddTag(new() { Name = tag.Trim() });
+                    await Query.LinkTagToMessage(messageId, newTag.Id);
+                }
+                else
+                {
+                    await Query.LinkTagToMessage(messageId, potentialTag.Id);
+                }
+            }
         }
 
         private bool CanSaveMessage(object parameter)
