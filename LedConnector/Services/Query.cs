@@ -1,13 +1,12 @@
 ﻿using LedConnector.Configs;
 using LedConnector.Models.Database;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Entity;
 
 namespace LedConnector.Services
 {
     public class Query
     {
-        public static async Task<List<Message>> GetLeds()
+        public static async Task<List<Message>> GetMessages()
         {
             LedContext db = new();
             List<Message> messages = await db

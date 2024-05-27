@@ -1,7 +1,6 @@
 ﻿using LedConnector.Models.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System.Configuration;
 
 namespace LedConnector.Configs
 {
@@ -28,7 +27,7 @@ namespace LedConnector.Configs
                 .UseLazyLoadingProxies()
                 .EnableSensitiveDataLogging();
 #else
-            string? authString = config.GetConnectionString("dev");
+            string? authString = config.GetConnectionString("prod");
 
             optionsBuilder
                 .UseMySql(authString, ServerVersion.AutoDetect(authString))

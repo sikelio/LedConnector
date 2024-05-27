@@ -1,5 +1,5 @@
-﻿using LedConnector.Models;
-using LedConnector.Services;
+﻿using LedConnector.Services;
+using LedConnector.ViewModels;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -18,6 +18,7 @@ namespace LedConnector
         {
             InitializeComponent();
             byteLetters = new();
+            DataContext = new MainWindowViewModel();
         }
 
         private async void SendBtnClick(object sender, RoutedEventArgs e)

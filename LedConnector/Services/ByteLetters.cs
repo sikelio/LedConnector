@@ -1,4 +1,4 @@
-﻿namespace LedConnector.Models
+﻿namespace LedConnector.Services
 {
     class ByteLetters
     {
