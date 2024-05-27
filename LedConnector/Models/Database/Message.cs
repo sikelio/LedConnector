@@ -16,5 +16,7 @@ namespace LedConnector.Models.Database
 
         [Column("binary_message")]
         public string BinaryMessage { get; set; }
+
+        public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
     }
 }

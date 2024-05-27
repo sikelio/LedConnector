@@ -8,6 +8,10 @@ namespace LedConnector.Configs
     {
         public DbSet<Message> Messages { get; set; }
 
+        public DbSet<Tag> Tags { get; set; }
+
+        public DbSet<MessageTag> MessageTags { get; set; }
+
         public LedContext()
         {
         }
@@ -52,6 +56,34 @@ namespace LedConnector.Configs
                 .Entity<Message>()
                 .Property(m => m.BinaryMessage)
                 .HasColumnType("text");
+
+            builder
+                .Entity<Tag>()
+                .Property(t => t.Id)
+                .HasColumnType("integer");
+
+            builder
+                .Entity<Tag>()
+                .Property(t => t.Name)
+                .HasColumnType("varchar")
+                .HasMaxLength(30);
+
+            builder
+                .Entity<MessageTag>()
+                .HasKey(mt => new
+                {
+                    mt.MessageId,
+                    mt.TagId
+                });
+
+            builder
+                .Entity<Message>()
+                .HasMany(e => e.Tags)
+                .WithMany(e => e.Messages)
+                .UsingEntity<MessageTag>(
+                    r => r.HasOne<Tag>().WithMany().HasForeignKey(e => e.TagId),
+                    l => l.HasOne<Message>().WithMany().HasForeignKey(e => e.MessageId)
+                );
         }
     }
 }
