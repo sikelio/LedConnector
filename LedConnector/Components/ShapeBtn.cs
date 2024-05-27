@@ -2,6 +2,7 @@
 using System.Windows.Media;
 using System.Windows;
 using System.Windows.Shapes;
+using System.Windows.Input;
 
 namespace LedConnector.Components
 {
@@ -11,8 +12,11 @@ namespace LedConnector.Components
         private readonly int _heigth = 11;
 
         public ObservableCollection<Shape> LedShapes { get; set; }
+
+        public ICommand EditCmd { get; set; }
+        public ICommand DeleteCmd { get; set; }
         
-        public ShapeBtn(string binaryMsg)
+        public ShapeBtn(string binaryMsg, ICommand editCmd, ICommand deleteCmd)
         {
             LedShapes = new ObservableCollection<Shape>();
 
@@ -30,6 +34,9 @@ namespace LedConnector.Components
 
                 LedShapes.Add(rectangle);
             }
+
+            EditCmd = editCmd;
+            DeleteCmd = deleteCmd;
         }
     }
 }

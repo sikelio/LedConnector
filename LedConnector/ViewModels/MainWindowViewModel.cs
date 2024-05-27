@@ -29,6 +29,9 @@ namespace LedConnector.ViewModels
             set { _saveCmd = value; }
         }
 
+        public ICommand EditMsgCmd { get; set; }
+        public ICommand DeleteMsgCmd { get; set; }
+
         private string _rawMessage;
         public string RawMessage
         {
@@ -47,6 +50,10 @@ namespace LedConnector.ViewModels
         public MainWindowViewModel()
         {
             SaveCmd = new RelayCommand(SaveMessage, CanSaveMessage);
+            EditMsgCmd = new RelayCommand(EditMessage, CanEditMessage);
+            DeleteMsgCmd = new RelayCommand(DeleteMessage, CanDeleteMessage);
+            
+            MsgButtons = new ObservableCollection<ShapeBtn>();
             CreateButtons();
         }
 
@@ -71,7 +78,7 @@ namespace LedConnector.ViewModels
                 return;
             }
 
-            MsgButtons.Add(new ShapeBtn(message.BinaryMessage));
+            MsgButtons.Add(new ShapeBtn(message.BinaryMessage, EditMsgCmd, DeleteMsgCmd));
             Messages.Add(message);
 
             MessageBox.Show("Message saved!");
@@ -81,7 +88,27 @@ namespace LedConnector.ViewModels
         {
             return true;
         }
-        
+
+        private async void EditMessage(object parameter)
+        {
+
+        }
+
+        private bool CanEditMessage(object parameter)
+        {
+            return true;
+        }
+
+        private async void DeleteMessage(object parameter)
+        {
+
+        }
+
+        private bool CanDeleteMessage(object parameter)
+        {
+            return true;
+        }
+
         private async void CreateButtons()
         {
             try
@@ -94,11 +121,9 @@ namespace LedConnector.ViewModels
                 Messages = [];
             }
 
-            MsgButtons = new ObservableCollection<ShapeBtn>();
-
             foreach (Message message in Messages)
             {
-                MsgButtons.Add(new ShapeBtn(message.BinaryMessage));
+                MsgButtons.Add(new ShapeBtn(message.BinaryMessage, EditMsgCmd, DeleteMsgCmd));
             }
 
             OnPropertyChanged("MsgButtons");
