@@ -5,6 +5,7 @@ using LedConnector.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 
 namespace LedConnector.ViewModels
@@ -44,9 +45,22 @@ namespace LedConnector.ViewModels
             }
         }
 
+        private string _filterText;
+        public string FilterText
+        {
+            get { return _filterText; }
+            set
+            {
+                _filterText = value;
+                OnPropertyChanged("FilterText");
+                ApplyFilter();
+            }
+        }
+
         public List<Message> Messages { get; set; }
 
         public ObservableCollection<ShapeBtn> MsgButtons { get; set; }
+        public ICollectionView FilteredMsgButtons { get; set; }
 
         public MainWindowViewModel()
         {
@@ -55,6 +69,7 @@ namespace LedConnector.ViewModels
             DeleteMsgCmd = new RelayCommand(DeleteMessage, CanDeleteMessage);
             
             MsgButtons = new ObservableCollection<ShapeBtn>();
+            FilteredMsgButtons = CollectionViewSource.GetDefaultView(MsgButtons);
             CreateButtons();
         }
 
@@ -178,6 +193,24 @@ namespace LedConnector.ViewModels
             }
 
             OnPropertyChanged("MsgButtons");
+        }
+
+        private void ApplyFilter()
+        {
+            if (FilteredMsgButtons != null)
+            {
+                FilteredMsgButtons.Filter = item =>
+                {
+                    if (item is ShapeBtn shapeBtn)
+                    {
+                        return string.IsNullOrEmpty(FilterText) || shapeBtn.Message.RawMessage.Contains(FilterText, StringComparison.OrdinalIgnoreCase);
+                    }
+
+                    return true;
+                };
+
+                FilteredMsgButtons.Refresh();
+            }
         }
     }
 }

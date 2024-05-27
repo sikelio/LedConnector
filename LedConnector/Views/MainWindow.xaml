@@ -75,47 +75,61 @@
                 </DockPanel>
             </Grid>
 
-            <ScrollViewer
-                Grid.Column="1"
-                HorizontalScrollBarVisibility="Hidden"
-                VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding MsgButtons}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Margin="5,0,0,0" Orientation="Horizontal">
-                                <Button
-                                    Width="125"
-                                    Margin="0,0,5,10"
-                                    Command="{Binding EditCmd}"
-                                    CommandParameter="{Binding}"
-                                    Content="Edit" />
-                                <Button
-                                    Width="125"
-                                    Margin="5,0,0,10"
-                                    Command="{Binding DeleteCmd}"
-                                    CommandParameter="{Binding}"
-                                    Content="Delete" />
-                                <Button Margin="10,0,10,10" Click="SendSavedMessage">
-                                    <Grid Width="440" Height="110">
-                                        <ItemsControl ItemsSource="{Binding LedShapes}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <UniformGrid Columns="44" Rows="11" />
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <ContentPresenter Content="{Binding}" />
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </Grid>
-                                </Button>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" VerticalAlignment="Center">
+                    <TextBox
+                        Name="Filter"
+                        Margin="5,0,0,0"
+                        Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <ScrollViewer
+                    Grid.Row="1"
+                    HorizontalScrollBarVisibility="Hidden"
+                    VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding MsgButtons}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="5,10,0,0" Orientation="Horizontal">
+                                    <Button
+                                        Width="125"
+                                        Margin="0,0,5,10"
+                                        Command="{Binding EditCmd}"
+                                        CommandParameter="{Binding}"
+                                        Content="Edit" />
+                                    <Button
+                                        Width="125"
+                                        Margin="5,0,0,10"
+                                        Command="{Binding DeleteCmd}"
+                                        CommandParameter="{Binding}"
+                                        Content="Delete" />
+                                    <Button Margin="10,0,10,10" Click="SendSavedMessage">
+                                        <Grid Width="440" Height="110">
+                                            <ItemsControl ItemsSource="{Binding LedShapes}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <UniformGrid Columns="44" Rows="11" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <ContentPresenter Content="{Binding}" />
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Grid>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
