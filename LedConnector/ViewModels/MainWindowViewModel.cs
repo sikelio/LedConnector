@@ -1,6 +1,7 @@
 ﻿using LedConnector.Components;
 using LedConnector.Models.Database;
 using LedConnector.Services;
+using LedConnector.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
@@ -91,6 +92,36 @@ namespace LedConnector.ViewModels
 
         private async void EditMessage(object parameter)
         {
+            if (parameter is ShapeBtn shapeBtn)
+            {
+                Message message = shapeBtn.Message;
+                EditMessage editDialog = new()
+                {
+                    DataContext = shapeBtn
+                };
+
+                if (editDialog.ShowDialog() == true)
+                {
+                    message.BinaryMessage = byteLetters.TranslateToBytes(message.RawMessage);
+
+                    bool success = await Query.EditMessage(message);
+
+                    if (success == false)
+                    {
+                        MessageBox.Show("Error while editing the message");
+                        return;
+                    }
+
+                    MsgButtons.Clear();
+
+                    foreach (Message msg in Messages)
+                    {
+                        MsgButtons.Add(new ShapeBtn(msg, EditMsgCmd, DeleteMsgCmd));
+                    }
+
+                    OnPropertyChanged("MsgButtons");
+                }
+            }
         }
 
         private bool CanEditMessage(object parameter)

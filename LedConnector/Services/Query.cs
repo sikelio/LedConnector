@@ -75,5 +75,42 @@ namespace LedConnector.Services
 
             return success;
         }
+
+        public static async Task<bool> EditMessage(Message newMessage)
+        {
+            LedContext db = new();
+            Message? oldMessage = db
+                .Messages
+                .Where(m => m.Id == newMessage.Id)
+                .FirstOrDefault();
+
+            if (oldMessage == null)
+            {
+                return false;
+            }
+
+            oldMessage.RawMessage = newMessage.RawMessage;
+            oldMessage.BinaryMessage = newMessage.BinaryMessage;
+
+            bool success;
+
+            try
+            {
+                await db
+                    .SaveChangesAsync();
+
+                success = true;
+            }
+            catch
+            {
+                success = false;
+            }
+
+            await db
+                .Database
+                .CloseConnectionAsync();
+
+            return success;
+        }
     }
 }

@@ -1,0 +1,41 @@
+﻿<Window
+    x:Class="LedConnector.Views.EditMessage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:LedConnector.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="Edit Message"
+    Width="400"
+    Height="200"
+    mc:Ignorable="d">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Margin="0,0,0,10" Text="Edit your message:" />
+        <TextBox
+            x:Name="MessageTextBox"
+            Grid.Row="1"
+            Margin="0,0,0,10"
+            Text="{Binding Message.RawMessage, UpdateSourceTrigger=PropertyChanged}" />
+        <StackPanel
+            Grid.Row="2"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal">
+            <Button
+                Width="75"
+                Margin="5,0"
+                Click="EditBtnClick"
+                Content="Edit" />
+            <Button
+                Width="75"
+                Margin="5,0"
+                Click="CancelBtnClick"
+                Content="Cancel" />
+        </StackPanel>
+    </Grid>
+</Window>
