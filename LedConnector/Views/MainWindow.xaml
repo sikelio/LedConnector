@@ -75,24 +75,33 @@
                 </DockPanel>
             </Grid>
 
-            <DataGrid
-                Grid.Column="1"
-                Margin="5,0,0,0"
-                AutoGenerateColumns="True"
-                ItemsSource="{Binding Messages}" />
-
-            <!--
             <ScrollViewer
                 Grid.Column="1"
                 HorizontalScrollBarVisibility="Hidden"
                 VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="5,0,0,0" Orientation="Vertical">
-                    <Button>
-                        <TextBlock Text="jkl" />
-                    </Button>
-                </StackPanel>
+                <ItemsControl ItemsSource="{Binding MsgButtons}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Margin="5,0,5,10">
+                                <Grid Width="440" Height="110">
+                                    <ItemsControl ItemsSource="{Binding LedShapes}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <UniformGrid Columns="44" Rows="11" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <ContentPresenter Content="{Binding}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </ScrollViewer>
-            -->
         </Grid>
     </Grid>
 </Window>
