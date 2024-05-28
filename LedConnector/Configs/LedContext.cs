@@ -50,7 +50,7 @@ namespace LedConnector.Configs
                 .Entity<Message>()
                 .Property(m => m.RawMessage)
                 .HasColumnType("varchar")
-                .HasMaxLength(9);
+                .HasMaxLength(8);
 
             builder
                 .Entity<Message>()
