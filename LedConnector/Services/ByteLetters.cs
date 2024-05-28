@@ -63,7 +63,7 @@
 
         public string TranslateToBytes(string message)
         {
-            if (message.Length == 0)
+            if (string.IsNullOrEmpty(message))
             {
                 return string.Empty;
             }

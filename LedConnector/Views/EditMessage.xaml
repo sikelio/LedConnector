@@ -9,6 +9,14 @@
     Width="400"
     Height="200"
     mc:Ignorable="d">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Resources/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -37,11 +45,14 @@
             Orientation="Horizontal">
             <Button
                 Width="75"
+                Height="30"
                 Margin="5,0"
                 Click="EditBtnClick"
                 Content="Edit" />
+
             <Button
                 Width="75"
+                Height="30"
                 Margin="5,0"
                 Click="CancelBtnClick"
                 Content="Cancel" />

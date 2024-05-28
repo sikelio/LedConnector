@@ -11,6 +11,14 @@
     Height="450"
     d:DataContext="{d:DesignInstance Type=ViewModels:MainWindowViewModel}"
     mc:Ignorable="d">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Resources/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="75" />
@@ -22,18 +30,15 @@
             Margin="10"
             VerticalAlignment="Center"
             Orientation="Horizontal">
-            <TextBlock Margin="0,15,0,15" Text="IP" />
+            <TextBlock Text="IP" />
             <TextBox
                 Name="IP"
                 Width="125"
-                Margin="10,15,0,15"
                 Text="127.0.0.1" />
-
-            <TextBlock Margin="15,15,0,15" Text="Port" />
+            <TextBlock Margin="15,0,0,0" Text="Port" />
             <TextBox
                 Name="Port"
                 Width="125"
-                Margin="10,15,0,15"
                 Text="1234" />
         </StackPanel>
 
@@ -52,7 +57,7 @@
 
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="55" />
+                        <ColumnDefinition Width="75" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -63,6 +68,7 @@
                     <TextBlock
                         Grid.Row="0"
                         Grid.Column="0"
+                        Margin="0,0,0,5"
                         Text="Message" />
 
                     <TextBox
@@ -75,7 +81,7 @@
                     <TextBlock
                         Grid.Row="1"
                         Grid.Column="0"
-                        Margin="0,10,0,0"
+                        Margin="0,5,0,0"
                         Text="Tags" />
 
                     <TextBox
@@ -92,12 +98,16 @@
                     LastChildFill="False">
                     <Button
                         Width="125"
+                        Height="30"
+                        Margin="0"
                         Command="{Binding SaveMsgCmd}"
                         Content="Save message"
                         DockPanel.Dock="Left" />
 
                     <Button
                         Width="125"
+                        Height="30"
+                        Margin="0,0,5,0"
                         Click="SendBtnClick"
                         Content="Send"
                         DockPanel.Dock="Right" />
@@ -106,7 +116,7 @@
 
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="20" />
+                    <RowDefinition Height="40" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
@@ -115,11 +125,13 @@
                         <ColumnDefinition Width="35" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
+
                     <TextBlock
                         Grid.Row="0"
                         Grid.Column="0"
-                        Margin="5,0,0,0"
+                        Margin="0,0,0,0"
                         Text="Filter" />
+
                     <TextBox
                         Name="Filter"
                         Grid.Row="0"
@@ -151,7 +163,10 @@
                                         CommandParameter="{Binding}">
                                         <Image Source="/Assets/bin.png" />
                                     </Button>
-                                    <Button Margin="10,0,10,10" Click="SendSavedMessage">
+                                    <Button
+                                        Margin="10,0,10,10"
+                                        Background="LightGray"
+                                        Click="SendSavedMessage">
                                         <Grid Width="440" Height="110">
                                             <ItemsControl ItemsSource="{Binding LedShapes}">
                                                 <ItemsControl.ItemsPanel>

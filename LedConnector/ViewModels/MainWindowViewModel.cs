@@ -86,7 +86,7 @@ namespace LedConnector.ViewModels
 
         private async void SaveMessage(object parameter)
         {
-            if (_rawMessage == "")
+            if (string.IsNullOrEmpty(_rawMessage))
             {
                 return;
             }
