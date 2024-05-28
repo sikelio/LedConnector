@@ -1,6 +1,7 @@
 ﻿using LedConnector.Configs;
 using LedConnector.Models.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace LedConnector.Services
 {
@@ -165,6 +166,72 @@ namespace LedConnector.Services
             await db
                 .Database
                 .CloseConnectionAsync();
+        }
+
+        public static async Task<bool> UpdateMessageTag(int messageId, List<string> newTags)
+        {
+            LedContext db = new();
+            IDbContextTransaction transaction = await db.Database.BeginTransactionAsync();
+
+            try
+            {
+                Message? message = await db
+                    .Messages
+                    .Where(m => m.Id == messageId)
+                    .Include(m => m.Tags)
+                    .FirstOrDefaultAsync();
+
+                if (message == null)
+                {
+                    return false;
+                }
+
+                message.Tags.Clear();
+
+                foreach (string tagName in newTags)
+                {
+                    Tag? tag = await db
+                        .Tags
+                        .Where(t => t.Name == tagName)
+                        .FirstOrDefaultAsync();
+
+                    if (tag == null)
+                    {
+                        tag = new Tag { Name = tagName };
+                        db.Tags.Add(tag);
+                    }
+
+                    message.Tags.Add(tag);
+                }
+
+                await db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                return false;
+            }
+            finally
+            {
+                await db.Database.CloseConnectionAsync();
+            }
+        }
+
+        public static async Task<Message?> FindMessageById(int messageId)
+        {
+            LedContext db = new();
+            Message? message = await db
+                .Messages
+                .Where(m => m.Id == messageId)
+                .Include(m => m.Tags)
+                .FirstOrDefaultAsync();
+
+            await db.Database.CloseConnectionAsync();
+
+            return message;
         }
     }
 }

@@ -141,9 +141,15 @@ namespace LedConnector.ViewModels
             if (parameter is ShapeBtn shapeBtn)
             {
                 Message message = shapeBtn.Message;
-                EditMessage editDialog = new()
+                string initialTags = string.Join(",", message.Tags.Select(t => t.Name));
+
+                var editDialog = new EditMessage
                 {
-                    DataContext = shapeBtn
+                    DataContext = new EditMessageViewModel
+                    {
+                        Message = message,
+                        Tags = initialTags
+                    }
                 };
 
                 if (editDialog.ShowDialog() == true)
@@ -158,13 +164,29 @@ namespace LedConnector.ViewModels
                         return;
                     }
 
-                    MsgButtons.Clear();
+                    List<string>? newTags = ((EditMessageViewModel)editDialog
+                        .DataContext)
+                        .Tags
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(tag => tag.Trim())
+                        .ToList();
 
-                    foreach (Message msg in Messages)
+                    success = await Query.UpdateMessageTag(message.Id, newTags);
+
+                    if (success == false)
                     {
-                        MsgButtons.Add(new ShapeBtn(msg, EditMsgCmd, DeleteMsgCmd));
+                        MessageBox.Show("Error while editing the message");
+                        return;
                     }
 
+                    Message? newMsg = await Query.FindMessageById(message.Id);
+
+                    if (newMsg == null)
+                    {
+                        return;
+                    }
+
+                    shapeBtn.Message = newMsg;
                     OnPropertyChanged("MsgButtons");
                 }
             }

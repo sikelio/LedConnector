@@ -12,18 +12,27 @@
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock Margin="0,0,0,10" Text="Edit your message:" />
+
         <TextBox
             x:Name="MessageTextBox"
             Grid.Row="1"
             Margin="0,0,0,10"
             Text="{Binding Message.RawMessage, UpdateSourceTrigger=PropertyChanged}" />
-        <StackPanel
+
+        <TextBox
+            x:Name="TagsTextBox"
             Grid.Row="2"
+            Margin="0,0,0,10"
+            Text="{Binding Tags, UpdateSourceTrigger=PropertyChanged}" />
+
+        <StackPanel
+            Grid.Row="3"
             HorizontalAlignment="Right"
             Orientation="Horizontal">
             <Button
