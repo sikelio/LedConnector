@@ -1,6 +1,6 @@
 CREATE TABLE messages (
     id_message INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    raw_message VARCHAR(255) NOT NULL,
+    raw_message VARCHAR(8) NOT NULL,
     binaray_message TEXT NOT NULL
 );
 
