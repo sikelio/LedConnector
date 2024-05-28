@@ -2,13 +2,23 @@
     x:Class="LedConnector.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ViewModels="clr-namespace:LedConnector.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:LedConnector"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="MainWindow"
     Width="800"
     Height="450"
+    d:DataContext="{d:DesignInstance Type=ViewModels:MainWindowViewModel}"
     mc:Ignorable="d">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Resources/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="75" />
@@ -20,30 +30,165 @@
             Margin="10"
             VerticalAlignment="Center"
             Orientation="Horizontal">
-            <TextBlock Margin="0,15,0,15" Text="IP" />
+            <TextBlock Text="IP" />
             <TextBox
                 Name="IP"
                 Width="125"
-                Margin="10,15,0,15"
                 Text="127.0.0.1" />
-
-            <TextBlock Margin="15,15,0,15" Text="Port" />
+            <TextBlock Margin="15,0,0,0" Text="Port" />
             <TextBox
                 Name="Port"
                 Width="125"
-                Margin="10,15,0,15"
                 Text="1234" />
-
-            <Button
-                Width="150"
-                Margin="10,15,0,15"
-                Click="SendBtnClick"
-                Content="Send" />
         </StackPanel>
 
-        <TextBox
-            Name="RawMessage"
-            Grid.Row="1"
-            Margin="10,0,10,15" />
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="0,0,0,5"
+                        Text="Message" />
+
+                    <TextBox
+                        Name="RawMessage"
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Margin="0,0,5,0"
+                        MaxLength="9"
+                        Text="{Binding RawMessage, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Margin="0,5,0,0"
+                        Text="Tags" />
+
+                    <TextBox
+                        Name="Tags"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Margin="0,10,5,0"
+                        Text="{Binding Tags, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
+
+                <DockPanel
+                    Grid.Row="1"
+                    Margin="0,10,5,0"
+                    LastChildFill="False">
+                    <Button
+                        Width="125"
+                        Height="30"
+                        Margin="0"
+                        Command="{Binding SaveMsgCmd}"
+                        Content="Save message"
+                        DockPanel.Dock="Left" />
+
+                    <Button
+                        Width="125"
+                        Height="30"
+                        Margin="0,0,5,0"
+                        Click="SendBtnClick"
+                        Content="Send"
+                        DockPanel.Dock="Right" />
+                </DockPanel>
+            </Grid>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="0,0,0,0"
+                        Text="Filter" />
+
+                    <TextBox
+                        Name="Filter"
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Margin="5,0,0,0"
+                        Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
+
+                <ScrollViewer
+                    Grid.Row="1"
+                    Margin="0,5,0,0"
+                    HorizontalScrollBarVisibility="Hidden"
+                    VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding MsgButtons}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="5,5,0,0" Orientation="Horizontal">
+                                    <Button
+                                        Width="125"
+                                        Margin="0,0,5,10"
+                                        Command="{Binding EditCmd}"
+                                        CommandParameter="{Binding}">
+                                        <Image Source="/Assets/pen.png" />
+                                    </Button>
+                                    <Button
+                                        Width="125"
+                                        Margin="5,0,0,10"
+                                        Command="{Binding DeleteCmd}"
+                                        CommandParameter="{Binding}">
+                                        <Image Source="/Assets/bin.png" />
+                                    </Button>
+                                    <Button
+                                        Margin="10,0,10,10"
+                                        Background="LightGray"
+                                        Click="SendSavedMessage">
+                                        <Grid Width="440" Height="110">
+                                            <ItemsControl ItemsSource="{Binding LedShapes}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <UniformGrid Columns="44" Rows="11" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <ContentPresenter Content="{Binding}" />
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Grid>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>

@@ -1,9 +1,12 @@
-﻿using LedConnector.Models;
+﻿using LedConnector.Components;
+using LedConnector.Models.Database;
 using LedConnector.Services;
+using LedConnector.ViewModels;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace LedConnector
 {
@@ -18,12 +21,18 @@ namespace LedConnector
         {
             InitializeComponent();
             byteLetters = new();
+            DataContext = new MainWindowViewModel();
         }
 
-        private async void SendBtnClick(object sender, RoutedEventArgs e)
+        private void SendBtnClick(object sender, RoutedEventArgs e)
         {
-            string message = CreateBinaryMessage();
+            string message = byteLetters.TranslateToBytes(RawMessage.Text);
 
+            SendMessage(message);
+        }
+    
+        private async void SendMessage(string binaryMessage)
+        {
             bool isConnected = await ConnectToInstance();
 
             if (isConnected == false)
@@ -32,44 +41,6 @@ namespace LedConnector
                 return;
             }
 
-            SendMessage(message);
-        }
-
-        private string CreateBinaryMessage()
-        {
-            string rawMessage = RawMessage.Text;
-
-            if (rawMessage.Length == 0)
-            {
-                return string.Empty;
-            }
-
-            int count = 1;
-            int start = 0;
-            string binaryMessage = "";
-
-            for (int i = 1; i < 11; i++)
-            {
-                foreach (char letter in rawMessage)
-                {
-                    string byteLetter = byteLetters.GetByteLetter(letter.ToString());
-                    binaryMessage += byteLetter.Substring(start, 5);
-                }
-
-                while (binaryMessage.Length < 44 * count)
-                {
-                    binaryMessage += "0";
-                }
-
-                count++;
-                start += 5;
-            }
-
-            return binaryMessage;
-        }
-    
-        private async void SendMessage(string binaryMessage)
-        {
             if (client == null || connector == null)
             {
                 MessageBox.Show($"Client or Connector is null");
@@ -126,6 +97,14 @@ namespace LedConnector
                 MessageBox.Show($"An error occured: {ex.Message}");
 
                 return false;
+            }
+        }
+
+        private void SendSavedMessage(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is ShapeBtn shapeBtn)
+            {
+                SendMessage(shapeBtn.Message.BinaryMessage);
             }
         }
     }
