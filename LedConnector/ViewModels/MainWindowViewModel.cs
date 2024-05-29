@@ -188,6 +188,7 @@ namespace LedConnector.ViewModels
 
                     shapeBtn.Message = newMsg;
                     OnPropertyChanged("MsgButtons");
+                    FilteredMsgButtons.Refresh();
                 }
             }
         }

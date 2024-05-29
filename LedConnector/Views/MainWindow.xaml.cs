@@ -1,8 +1,8 @@
 ﻿using LedConnector.Components;
-using LedConnector.Models.Database;
 using LedConnector.Services;
 using LedConnector.ViewModels;
-using System.IO;
+using LedConnector.Views;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
 using System.Windows;
@@ -17,23 +17,31 @@ namespace LedConnector
         private Connector? connector;
         private TcpClient? client;
 
+        private bool hasLoadedOnce = false;
+
         public MainWindow()
         {
             InitializeComponent();
             byteLetters = new();
             DataContext = new MainWindowViewModel();
+            _ = ScanPort();
         }
 
         private void SendBtnClick(object sender, RoutedEventArgs e)
         {
-            string message = byteLetters.TranslateToBytes(RawMessage.Text);
+            List<int> ports = ServerList.SelectedItems.Cast<int>().ToList();
 
-            SendMessage(message);
+            foreach (int port in ports)
+            {
+                string message = byteLetters.TranslateToBytes(RawMessage.Text);
+
+                SendMessage(message, port);
+            }
         }
     
-        private async void SendMessage(string binaryMessage)
+        private async void SendMessage(string binaryMessage, int port)
         {
-            bool isConnected = await ConnectToInstance();
+            bool isConnected = await ConnectToInstance(port);
 
             if (isConnected == false)
             {
@@ -69,21 +77,9 @@ namespace LedConnector
             }
         }
 
-        private async Task<bool> ConnectToInstance()
+        private async Task<bool> ConnectToInstance(int port)
         {
-            string address = IP.Text;
-            int port;
-
-            try
-            {
-                port = int.Parse(Port.Text);
-            }
-            catch
-            {
-                port = 1234;
-            }
-
-            connector = new(address, port);
+            connector = new("127.0.0.1", port);
 
             try
             {
@@ -104,8 +100,68 @@ namespace LedConnector
         {
             if (sender is Button button && button.DataContext is ShapeBtn shapeBtn)
             {
-                SendMessage(shapeBtn.Message.BinaryMessage);
+                List<int> ports = ServerList.SelectedItems.Cast<int>().ToList();
+
+                foreach (int port in ports)
+                {
+                    SendMessage(shapeBtn.Message.BinaryMessage, port);
+                }
             }
+        }
+
+        private async Task ScanPort()
+        {
+            Splashscreen splashScreen = new();
+
+            if (hasLoadedOnce == false)
+            {
+                splashScreen.Show();
+            }
+
+            List<int> ports = new();
+            int startPort = 1234, endport = 1244;
+
+            for (int port = startPort; port <= endport; port++)
+            {
+                string scanMessage = byteLetters.TranslateToBytes(" ");
+                byte[] buffer = Encoding.UTF8.GetBytes(scanMessage);
+
+                try
+                {
+                    TcpClient connection = new("127.0.0.1", port);
+                    NetworkStream netStream = connection.GetStream();
+
+                    await netStream.WriteAsync(buffer);
+                    await netStream.FlushAsync();
+                    netStream.Close();
+
+                    ports.Add(port);
+
+                    Trace.WriteLine($"Alive connection on port {port}");
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+
+            foreach (int port in ports)
+            {
+                ServerList.Items.Add(port);
+            }
+
+            if (hasLoadedOnce == false)
+            {
+                splashScreen.Close();
+            }
+
+            hasLoadedOnce = true;
+        }
+
+        private async void RefreshBtnClick(object sender, RoutedEventArgs e)
+        {
+            ServerList.Items.Clear();
+            await ScanPort();
         }
     }
 }
