@@ -17,6 +17,8 @@ namespace LedConnector
         private Connector? connector;
         private TcpClient? client;
 
+        private bool hasLoadedOnce = false;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -110,7 +112,11 @@ namespace LedConnector
         private async Task ScanPort()
         {
             Splashscreen splashScreen = new();
-            splashScreen.Show();
+
+            if (hasLoadedOnce == false)
+            {
+                splashScreen.Show();
+            }
 
             List<int> ports = new();
             int startPort = 1234, endport = 1244;
@@ -144,7 +150,12 @@ namespace LedConnector
                 ServerList.Items.Add(port);
             }
 
-            splashScreen.Close();
+            if (hasLoadedOnce == false)
+            {
+                splashScreen.Close();
+            }
+
+            hasLoadedOnce = true;
         }
 
         private async void RefreshBtnClick(object sender, RoutedEventArgs e)
