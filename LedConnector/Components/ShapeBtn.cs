@@ -3,27 +3,47 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Input;
 using LedConnector.Models.Database;
+using System.ComponentModel;
 
 namespace LedConnector.Components
 {
     public class ShapeBtn
     {
         private readonly int _width = 44;
-        private readonly int _heigth = 11;
+        private readonly int _height = 11;
+
+        private Message _message;
+        public Message Message
+        {
+            get => _message;
+            set
+            {
+                _message = value;
+                OnPropertyChanged(nameof(Message));
+                UpdateShapes();
+            }
+        }
 
         public ObservableCollection<Shape> LedShapes { get; set; }
 
         public ICommand EditCmd { get; set; }
         public ICommand DeleteCmd { get; set; }
 
-        public Message Message { get; set; }
-
         public ShapeBtn(Message message, ICommand editCmd, ICommand deleteCmd)
         {
+            _message = message;
             LedShapes = new ObservableCollection<Shape>();
+            EditCmd = editCmd;
+            DeleteCmd = deleteCmd;
 
-            int maxLength = _width * _heigth;
-            string binaryMessage = message.BinaryMessage.PadRight(maxLength, '0');
+            UpdateShapes();
+        }
+
+        private void UpdateShapes()
+        {
+            LedShapes.Clear();
+            int maxLength = _width * _height;
+            string binaryMessage = _message.BinaryMessage.PadRight(maxLength, '0');
 
             for (int i = 0; i < maxLength; i++)
             {
@@ -36,10 +56,13 @@ namespace LedConnector.Components
 
                 LedShapes.Add(rectangle);
             }
+        }
 
-            EditCmd = editCmd;
-            DeleteCmd = deleteCmd;
-            Message = message;
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
+
