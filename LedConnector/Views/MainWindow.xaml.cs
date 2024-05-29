@@ -139,5 +139,11 @@ namespace LedConnector
                 ServerList.Items.Add(port);
             }
         }
+
+        private async void RefreshBtnClick(object sender, RoutedEventArgs e)
+        {
+            ServerList.Items.Clear();
+            await ScanPort();
+        }
     }
 }
