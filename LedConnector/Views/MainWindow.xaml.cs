@@ -1,6 +1,7 @@
 ﻿using LedConnector.Components;
 using LedConnector.Services;
 using LedConnector.ViewModels;
+using LedConnector.Views;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
@@ -108,9 +109,13 @@ namespace LedConnector
 
         private async Task ScanPort()
         {
-            List<int> ports = new();
+            Splashscreen splashScreen = new();
+            splashScreen.Show();
 
-            for (int port = 1234; port <= 1244; port++)
+            List<int> ports = new();
+            int startPort = 1234, endport = 1244;
+
+            for (int port = startPort; port <= endport; port++)
             {
                 string scanMessage = byteLetters.TranslateToBytes(" ");
                 byte[] buffer = Encoding.UTF8.GetBytes(scanMessage);
@@ -138,6 +143,8 @@ namespace LedConnector
             {
                 ServerList.Items.Add(port);
             }
+
+            splashScreen.Close();
         }
 
         private async void RefreshBtnClick(object sender, RoutedEventArgs e)

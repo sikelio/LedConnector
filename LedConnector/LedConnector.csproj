@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <None Remove="Assets\bin.png" />
+    <None Remove="Assets\led-connector.png" />
     <None Remove="Assets\pen.png" />
   </ItemGroup>
 
@@ -41,6 +42,9 @@
 
   <ItemGroup>
     <Resource Include="Assets\bin.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\led-connector.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Assets\pen.png">
