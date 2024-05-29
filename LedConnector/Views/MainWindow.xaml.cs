@@ -110,7 +110,7 @@ namespace LedConnector
         {
             List<int> ports = new();
 
-            for (int port = 1233; port <= 1236; port++)
+            for (int port = 1234; port <= 1244; port++)
             {
                 string scanMessage = byteLetters.TranslateToBytes(" ");
                 byte[] buffer = Encoding.UTF8.GetBytes(scanMessage);
