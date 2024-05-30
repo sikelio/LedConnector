@@ -32,8 +32,7 @@
                     Name="progressBar"
                     Width="200"
                     Margin="10"
-                    Maximum="100"
-                    Minimum="0" />
+                    IsIndeterminate="True" />
 
                 <TextBlock Name="progressText" HorizontalAlignment="Center" />
             </StackPanel>
