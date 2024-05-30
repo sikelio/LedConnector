@@ -28,6 +28,7 @@ namespace LedConnector.ViewModels
             }
         }
 
+        public ICommand SendMsgCmd { get; set; }
         private ICommand _saveMsgCmd;
         public ICommand SaveMsgCmd
         {
@@ -96,6 +97,7 @@ namespace LedConnector.ViewModels
             SelectedServers = new ObservableCollection<int>();
             SelectedServers = new ObservableCollection<int>();
 
+            SendMsgCmd = new RelayCommand(SendMessage, CanSendMessage);
             SaveMsgCmd = new RelayCommand(SaveMessage, CanSaveMessage);
             EditMsgCmd = new RelayCommand(EditMessage, CanEditMessage);
             DeleteMsgCmd = new RelayCommand(DeleteMessage, CanDeleteMessage);
@@ -107,6 +109,17 @@ namespace LedConnector.ViewModels
             MsgButtons = new ObservableCollection<ShapeBtn>();
             FilteredMsgButtons = CollectionViewSource.GetDefaultView(MsgButtons);
             CreateButtons();
+        }
+
+        private async void SendMessage(object parameter)
+        {
+            List<int> ports = new List<int>(SelectedServers);
+            string binaryMessage = byteLetters.TranslateToBytes(RawMessage);
+
+            foreach (int port in ports)
+            {
+                await SendMessage(port, binaryMessage);
+            }
         }
 
         private async void SaveMessage(object parameter)
@@ -358,6 +371,11 @@ namespace LedConnector.ViewModels
         }
 
 
+
+        private bool CanSendMessage(object parameter)
+        {
+            return true;
+        }
 
         private bool CanSaveMessage(object parameter)
         {
