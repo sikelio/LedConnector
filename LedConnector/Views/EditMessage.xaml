@@ -48,14 +48,16 @@
                 Width="75"
                 Height="30"
                 Margin="5,0"
-                Click="EditBtnClick"
+                Command="{Binding EditCommand}"
+                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
                 Content="Edit" />
 
             <Button
                 Width="75"
                 Height="30"
                 Margin="5,0"
-                Click="CancelBtnClick"
+                Command="{Binding CancelCommand}"
+                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
                 Content="Cancel" />
         </StackPanel>
     </Grid>

@@ -1,5 +1,8 @@
 ﻿using LedConnector.Models.Database;
+using LedConnector.Services;
 using System.ComponentModel;
+using System.Windows;
+using System.Windows.Input;
 
 namespace LedConnector.ViewModels
 {
@@ -9,10 +12,7 @@ namespace LedConnector.ViewModels
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private Message _message;
@@ -35,6 +35,50 @@ namespace LedConnector.ViewModels
                 _tags = value;
                 OnPropertyChanged("Tags");
             }
+        }
+
+        public ICommand EditCmd { get; set; }
+        public ICommand CancelCmd { get; set; }
+
+        public EditMessageViewModel()
+        {
+            EditCmd = new RelayCommand(Edit, CanEdit);
+            CancelCmd = new RelayCommand(Cancel, CanCancel);
+        }
+
+        private void Edit(object parameter)
+        {
+            if (parameter is Window window)
+            {
+                window.DialogResult = true;
+                window.Close();
+            }
+        }
+
+        private void Cancel(object parameter)
+        {
+            if (parameter is Window window)
+            {
+                window.DialogResult = false;
+                window.Close();
+            }
+        }
+
+
+
+        private bool CanEdit(object parameter)
+        {
+            if (string.IsNullOrEmpty(_message.RawMessage))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool CanCancel(object parameter)
+        {
+            return true;
         }
     }
 }

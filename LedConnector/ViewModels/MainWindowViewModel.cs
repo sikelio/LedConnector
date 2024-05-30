@@ -5,8 +5,10 @@ using LedConnector.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -93,8 +95,7 @@ namespace LedConnector.ViewModels
 
         public MainWindowViewModel()
         {
-            ServerList = new();
-            SelectedServers = new ObservableCollection<int>();
+            ServerList = new ObservableCollection<int>();
             SelectedServers = new ObservableCollection<int>();
 
             SendMsgCmd = new RelayCommand(SendMessage, CanSendMessage);
@@ -102,7 +103,7 @@ namespace LedConnector.ViewModels
             EditMsgCmd = new RelayCommand(EditMessage, CanEditMessage);
             DeleteMsgCmd = new RelayCommand(DeleteMessage, CanDeleteMessage);
             SendSavedCmd = new RelayCommand(SendSavedMessage, CanSendSavedMessage);
-            RefreshPortsCmd = new RelayCommand(async _ => await ScanPorts(), CanRefreshServerListt);
+            RefreshPortsCmd = new RelayCommand(async _ => await ScanPorts(), CanRefreshServerList);
 
             _ = ScanPorts();
 
@@ -191,22 +192,20 @@ namespace LedConnector.ViewModels
 
                     bool success = await Query.EditMessage(message);
 
-                    if (success == false)
+                    if (!success)
                     {
                         MessageBox.Show("Error while editing the message");
                         return;
                     }
 
-                    List<string>? newTags = ((EditMessageViewModel)editDialog
-                        .DataContext)
-                        .Tags
+                    List<string>? newTags = ((EditMessageViewModel)editDialog.DataContext).Tags
                         .Split(',', StringSplitOptions.RemoveEmptyEntries)
                         .Select(tag => tag.Trim())
                         .ToList();
 
                     success = await Query.UpdateMessageTag(message.Id, newTags);
 
-                    if (success == false)
+                    if (!success)
                     {
                         MessageBox.Show("Error while editing the message");
                         return;
@@ -239,7 +238,7 @@ namespace LedConnector.ViewModels
 
                 bool success = await Query.DeleteMessage(shapeBtn.Message);
 
-                if (success == false)
+                if (!success)
                 {
                     MessageBox.Show("Error during the delete");
                     return;
@@ -261,7 +260,7 @@ namespace LedConnector.ViewModels
             }
             catch
             {
-                Messages = [];
+                Messages = new List<Message>();
             }
 
             foreach (Message message in Messages)
@@ -370,8 +369,6 @@ namespace LedConnector.ViewModels
             ScanCompleted?.Invoke(this, EventArgs.Empty);
         }
 
-
-
         private bool CanSendMessage(object parameter)
         {
             return true;
@@ -397,7 +394,7 @@ namespace LedConnector.ViewModels
             return true;
         }
 
-        private bool CanRefreshServerListt(object parameter)
+        private bool CanRefreshServerList(object parameter)
         {
             return true;
         }

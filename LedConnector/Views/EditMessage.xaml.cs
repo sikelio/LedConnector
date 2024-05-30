@@ -8,15 +8,5 @@ namespace LedConnector.Views
         {
             InitializeComponent();
         }
-
-        private void EditBtnClick(object sender, RoutedEventArgs e)
-        {
-            DialogResult = true;
-        }
-
-        private void CancelBtnClick(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-        }
     }
 }
