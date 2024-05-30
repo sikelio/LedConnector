@@ -5,10 +5,8 @@ using LedConnector.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -49,7 +47,7 @@ namespace LedConnector.ViewModels
             set
             {
                 _rawMessage = value;
-                OnPropertyChanged("RawMessage");
+                OnPropertyChanged(nameof(RawMessage));
             }
         }
 
@@ -60,7 +58,7 @@ namespace LedConnector.ViewModels
             set
             {
                 _tags = value;
-                OnPropertyChanged("Tags");
+                OnPropertyChanged(nameof(Tags));
             }
         }
 
@@ -71,7 +69,7 @@ namespace LedConnector.ViewModels
             set
             {
                 _filterText = value;
-                OnPropertyChanged("FilterText");
+                OnPropertyChanged(nameof(FilterText));
                 ApplyFilter();
             }
         }
@@ -95,8 +93,8 @@ namespace LedConnector.ViewModels
 
         public MainWindowViewModel()
         {
-            ServerList = new ObservableCollection<int>();
-            SelectedServers = new ObservableCollection<int>();
+            ServerList = [];
+            SelectedServers = [];
 
             SendMsgCmd = new RelayCommand(SendMessage, CanSendMessage);
             SaveMsgCmd = new RelayCommand(SaveMessage, CanSaveMessage);
@@ -107,14 +105,14 @@ namespace LedConnector.ViewModels
 
             _ = ScanPorts();
 
-            MsgButtons = new ObservableCollection<ShapeBtn>();
+            MsgButtons = [];
             FilteredMsgButtons = CollectionViewSource.GetDefaultView(MsgButtons);
             CreateButtons();
         }
 
         private async void SendMessage(object parameter)
         {
-            List<int> ports = new List<int>(SelectedServers);
+            List<int> ports = new(SelectedServers);
             string binaryMessage = byteLetters.TranslateToBytes(RawMessage);
 
             foreach (int port in ports)
@@ -219,7 +217,7 @@ namespace LedConnector.ViewModels
                     }
 
                     shapeBtn.Message = newMsg;
-                    OnPropertyChanged("MsgButtons");
+                    OnPropertyChanged(nameof(MsgButtons));
                     FilteredMsgButtons.Refresh();
                 }
             }
@@ -256,7 +254,7 @@ namespace LedConnector.ViewModels
             try
             {
                 Messages = await Query.GetMessages();
-                OnPropertyChanged("Messages");
+                OnPropertyChanged(nameof(Messages));
             }
             catch
             {
@@ -268,7 +266,7 @@ namespace LedConnector.ViewModels
                 MsgButtons.Add(new ShapeBtn(message, EditMsgCmd, DeleteMsgCmd, SendSavedCmd));
             }
 
-            OnPropertyChanged("MsgButtons");
+            OnPropertyChanged(nameof(MsgButtons));
         }
 
         private void ApplyFilter()
@@ -293,7 +291,7 @@ namespace LedConnector.ViewModels
         {
             if (parameter is ShapeBtn shapeBtn)
             {
-                List<int> ports = new List<int>(SelectedServers);
+                List<int> ports = new(SelectedServers);
 
                 foreach (int port in ports)
                 {
@@ -326,7 +324,7 @@ namespace LedConnector.ViewModels
         {
             IsScanning = true;
 
-            List<int> ports = new();
+            List<int> ports = [];
             int startPort = 1234, endport = 1244;
 
             for (int port = startPort; port <= endport; port++)

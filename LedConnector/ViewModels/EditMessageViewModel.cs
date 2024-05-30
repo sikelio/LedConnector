@@ -12,7 +12,10 @@ namespace LedConnector.ViewModels
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
 
         private Message _message;
@@ -22,7 +25,7 @@ namespace LedConnector.ViewModels
             set
             {
                 _message = value;
-                OnPropertyChanged("Message");
+                OnPropertyChanged(nameof(Message));
             }
         }
 
@@ -33,7 +36,7 @@ namespace LedConnector.ViewModels
             set
             {
                 _tags = value;
-                OnPropertyChanged("Tags");
+                OnPropertyChanged(nameof(Tags));
             }
         }
 
