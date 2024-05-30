@@ -4,6 +4,8 @@ using LedConnector.Services;
 using LedConnector.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Net.Sockets;
+using System.Text;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -30,9 +32,9 @@ namespace LedConnector.ViewModels
             get { return _saveMsgCmd; }
             set { _saveMsgCmd = value; }
         }
-
         public ICommand EditMsgCmd { get; set; }
         public ICommand DeleteMsgCmd { get; set; }
+        public ICommand SendSavedCmd { get; set; }
 
         private string _rawMessage;
         public string RawMessage
@@ -68,17 +70,21 @@ namespace LedConnector.ViewModels
             }
         }
 
+        public ObservableCollection<string> Servers { get; set; }
+        public ObservableCollection<int> SelectedServers { get; set; }
         public List<Message> Messages { get; set; }
-
         public ObservableCollection<ShapeBtn> MsgButtons { get; set; }
         public ICollectionView FilteredMsgButtons { get; set; }
 
         public MainWindowViewModel()
         {
+            SelectedServers = new ObservableCollection<int>();
+
             SaveMsgCmd = new RelayCommand(SaveMessage, CanSaveMessage);
             EditMsgCmd = new RelayCommand(EditMessage, CanEditMessage);
             DeleteMsgCmd = new RelayCommand(DeleteMessage, CanDeleteMessage);
-            
+            SendSavedCmd = new RelayCommand(SendSavedMessage, CanSendSavedMessage);
+
             MsgButtons = new ObservableCollection<ShapeBtn>();
             FilteredMsgButtons = CollectionViewSource.GetDefaultView(MsgButtons);
             CreateButtons();
@@ -100,7 +106,7 @@ namespace LedConnector.ViewModels
             Message msg = await Query.AddMessage(message);
             await SaveTags(msg.Id);
 
-            MsgButtons.Add(new ShapeBtn(message, EditMsgCmd, DeleteMsgCmd));
+            MsgButtons.Add(new ShapeBtn(message, EditMsgCmd, DeleteMsgCmd, SendSavedCmd));
             Messages.Add(message);
 
             MessageBox.Show("Message saved!");
@@ -129,11 +135,6 @@ namespace LedConnector.ViewModels
                     await Query.LinkTagToMessage(messageId, potentialTag.Id);
                 }
             }
-        }
-
-        private bool CanSaveMessage(object parameter)
-        {
-            return true;
         }
 
         private async void EditMessage(object parameter)
@@ -193,11 +194,6 @@ namespace LedConnector.ViewModels
             }
         }
 
-        private bool CanEditMessage(object parameter)
-        {
-            return true;
-        }
-
         private async void DeleteMessage(object parameter)
         {
             if (parameter is ShapeBtn shapeBtn)
@@ -224,11 +220,6 @@ namespace LedConnector.ViewModels
             }
         }
 
-        private bool CanDeleteMessage(object parameter)
-        {
-            return true;
-        }
-
         private async void CreateButtons()
         {
             try
@@ -243,7 +234,7 @@ namespace LedConnector.ViewModels
 
             foreach (Message message in Messages)
             {
-                MsgButtons.Add(new ShapeBtn(message, EditMsgCmd, DeleteMsgCmd));
+                MsgButtons.Add(new ShapeBtn(message, EditMsgCmd, DeleteMsgCmd, SendSavedCmd));
             }
 
             OnPropertyChanged("MsgButtons");
@@ -265,6 +256,61 @@ namespace LedConnector.ViewModels
 
                 FilteredMsgButtons.Refresh();
             }
+        }
+
+        private async void SendSavedMessage(object parameter)
+        {
+            if (parameter is ShapeBtn shapeBtn)
+            {
+                List<int> ports = new List<int>(SelectedServers);
+
+                foreach (int port in ports)
+                {
+                    await SendMessage(port, shapeBtn.Message.BinaryMessage);
+                }
+            }
+        }
+
+        private async Task SendMessage(int port, string binaryMsg)
+        {
+            byte[] buffer = Encoding.UTF8.GetBytes(binaryMsg);
+
+            try
+            {
+                Connector connector = new("127.0.0.1", port);
+                TcpClient client = await connector.Connect();
+                NetworkStream stream = client.GetStream();
+
+                await stream.WriteAsync(buffer);
+                await stream.FlushAsync();
+                stream.Close();
+            }
+            catch
+            {
+                return;
+            }
+        }
+
+
+
+        private bool CanSaveMessage(object parameter)
+        {
+            return true;
+        }
+
+        private bool CanEditMessage(object parameter)
+        {
+            return true;
+        }
+
+        private bool CanDeleteMessage(object parameter)
+        {
+            return true;
+        }
+
+        private bool CanSendSavedMessage(object parameter)
+        {
+            return true;
         }
     }
 }
