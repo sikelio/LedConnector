@@ -48,7 +48,7 @@
                 Width="75"
                 Height="30"
                 Margin="5,0"
-                Command="{Binding EditCommand}"
+                Command="{Binding EditCmd}"
                 CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
                 Content="Edit" />
 
@@ -56,7 +56,7 @@
                 Width="75"
                 Height="30"
                 Margin="5,0"
-                Command="{Binding CancelCommand}"
+                Command="{Binding CancelCmd}"
                 CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
                 Content="Cancel" />
         </StackPanel>
