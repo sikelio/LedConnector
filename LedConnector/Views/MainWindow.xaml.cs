@@ -111,6 +111,7 @@ namespace LedConnector
 
         private async Task ScanPort()
         {
+            this.Hide();
             Splashscreen splashScreen = new();
 
             if (hasLoadedOnce == false)
@@ -128,16 +129,19 @@ namespace LedConnector
 
                 try
                 {
-                    TcpClient connection = new("127.0.0.1", port);
-                    NetworkStream netStream = connection.GetStream();
+                    await Task.Run(async () =>
+                    {
+                        TcpClient connection = new("127.0.0.1", port);
+                        NetworkStream netStream = connection.GetStream();
 
-                    await netStream.WriteAsync(buffer);
-                    await netStream.FlushAsync();
-                    netStream.Close();
+                        await netStream.WriteAsync(buffer);
+                        await netStream.FlushAsync();
+                        netStream.Close();
 
-                    ports.Add(port);
+                        ports.Add(port);
 
-                    Trace.WriteLine($"Alive connection on port {port}");
+                        Trace.WriteLine($"Alive connection on port {port}");
+                    });
                 }
                 catch
                 {
@@ -156,6 +160,7 @@ namespace LedConnector
             }
 
             hasLoadedOnce = true;
+            this.Show();
         }
 
         private async void RefreshBtnClick(object sender, RoutedEventArgs e)
