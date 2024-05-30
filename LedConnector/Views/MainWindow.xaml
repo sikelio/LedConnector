@@ -8,7 +8,7 @@
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:local="clr-namespace:LedConnector"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="MainWindow"
+    Title="LED Connector"
     Width="1125"
     Height="500"
     d:DataContext="{d:DesignInstance Type=ViewModels:MainWindowViewModel}"
