@@ -13,6 +13,7 @@
     Height="500"
     d:DataContext="{d:DesignInstance Type=ViewModels:MainWindowViewModel}"
     ResizeMode="CanMinimize"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
     <Window.Resources>
         <ResourceDictionary>
