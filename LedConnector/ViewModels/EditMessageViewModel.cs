@@ -1,5 +1,8 @@
 ﻿using LedConnector.Models.Database;
+using LedConnector.Services;
 using System.ComponentModel;
+using System.Windows;
+using System.Windows.Input;
 
 namespace LedConnector.ViewModels
 {
@@ -22,7 +25,7 @@ namespace LedConnector.ViewModels
             set
             {
                 _message = value;
-                OnPropertyChanged("Message");
+                OnPropertyChanged(nameof(Message));
             }
         }
 
@@ -33,8 +36,52 @@ namespace LedConnector.ViewModels
             set
             {
                 _tags = value;
-                OnPropertyChanged("Tags");
+                OnPropertyChanged(nameof(Tags));
             }
+        }
+
+        public ICommand EditCmd { get; set; }
+        public ICommand CancelCmd { get; set; }
+
+        public EditMessageViewModel()
+        {
+            EditCmd = new RelayCommand(Edit, CanEdit);
+            CancelCmd = new RelayCommand(Cancel, CanCancel);
+        }
+
+        private void Edit(object parameter)
+        {
+            if (parameter is Window window)
+            {
+                window.DialogResult = true;
+                window.Close();
+            }
+        }
+
+        private void Cancel(object parameter)
+        {
+            if (parameter is Window window)
+            {
+                window.DialogResult = false;
+                window.Close();
+            }
+        }
+
+
+
+        private bool CanEdit(object parameter)
+        {
+            if (string.IsNullOrEmpty(_message.RawMessage))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool CanCancel(object parameter)
+        {
+            return true;
         }
     }
 }

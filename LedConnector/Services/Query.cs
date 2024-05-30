@@ -1,5 +1,6 @@
 ﻿using LedConnector.Configs;
 using LedConnector.Models.Database;
+using LedConnector.Models.Dto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -232,6 +233,32 @@ namespace LedConnector.Services
             await db.Database.CloseConnectionAsync();
 
             return message;
+        }
+
+        public static async Task<List<MessageDto>> FindAllMessages()
+        {
+            LedContext db = new();
+            List<MessageDto> messages = await db
+                .Messages
+                .Include(m => m.Tags)
+                .Select(m => new MessageDto
+                {
+                    Id = m.Id,
+                    RawMessage = m.RawMessage,
+                    BinaryMessage = m.BinaryMessage,
+                    Tags = m.Tags.Select(t => new TagDto
+                    {
+                        Id = t.Id,
+                        Name = t.Name,
+                    }).ToList()
+                })
+                .ToListAsync();
+
+            await db
+                .Database
+                .CloseConnectionAsync();
+
+            return messages;
         }
     }
 }

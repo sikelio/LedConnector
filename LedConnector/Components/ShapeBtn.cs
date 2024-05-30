@@ -28,13 +28,15 @@ namespace LedConnector.Components
 
         public ICommand EditCmd { get; set; }
         public ICommand DeleteCmd { get; set; }
+        public ICommand SendSavedCmd { get; set; }
 
-        public ShapeBtn(Message message, ICommand editCmd, ICommand deleteCmd)
+        public ShapeBtn(Message message, ICommand editCmd, ICommand deleteCmd, ICommand sendSavedCmd)
         {
             _message = message;
             LedShapes = new ObservableCollection<Shape>();
             EditCmd = editCmd;
             DeleteCmd = deleteCmd;
+            SendSavedCmd = sendSavedCmd;
 
             UpdateShapes();
         }
