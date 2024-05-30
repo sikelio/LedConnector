@@ -33,8 +33,6 @@
                     Width="200"
                     Margin="10"
                     IsIndeterminate="True" />
-
-                <TextBlock Name="progressText" HorizontalAlignment="Center" />
             </StackPanel>
         </Border>
     </Grid>
