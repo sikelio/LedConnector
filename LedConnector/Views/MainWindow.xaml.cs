@@ -96,19 +96,6 @@ namespace LedConnector
             }
         }
 
-        private void SendSavedMessage(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button && button.DataContext is ShapeBtn shapeBtn)
-            {
-                List<int> ports = ServerList.SelectedItems.Cast<int>().ToList();
-
-                foreach (int port in ports)
-                {
-                    SendMessage(shapeBtn.Message.BinaryMessage, port);
-                }
-            }
-        }
-
         private async Task ScanPort()
         {
             this.Hide();
