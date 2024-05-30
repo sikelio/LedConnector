@@ -1,12 +1,9 @@
-﻿using LedConnector.Components;
-using LedConnector.Services;
+﻿using LedConnector.Services;
 using LedConnector.ViewModels;
 using LedConnector.Views;
-using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace LedConnector
 {
@@ -19,26 +16,43 @@ namespace LedConnector
 
         private bool hasLoadedOnce = false;
 
+        private Splashscreen splashScreen;
+        private MainWindowViewModel viewModel;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            viewModel = new();
+            DataContext = viewModel;
+
+            Hide();
+            splashScreen = new();
+            splashScreen.Show();
+
+            viewModel.ScanCompleted += OnScanCompleted;
+            
             byteLetters = new();
-            DataContext = new MainWindowViewModel();
-            _ = ScanPort();
+        }
+
+        private void OnScanCompleted(object sender, EventArgs e)
+        {
+            splashScreen.Close();
+            Show();
         }
 
         private void SendBtnClick(object sender, RoutedEventArgs e)
         {
-            List<int> ports = ServerList.SelectedItems.Cast<int>().ToList();
+            /*List<int> ports = ServerList.SelectedItems.Cast<int>().ToList();
 
             foreach (int port in ports)
             {
                 string message = byteLetters.TranslateToBytes(RawMessage.Text);
 
                 SendMessage(message, port);
-            }
+            }*/
         }
-    
+
         private async void SendMessage(string binaryMessage, int port)
         {
             bool isConnected = await ConnectToInstance(port);
@@ -94,66 +108,6 @@ namespace LedConnector
 
                 return false;
             }
-        }
-
-        private async Task ScanPort()
-        {
-            this.Hide();
-            Splashscreen splashScreen = new();
-
-            if (hasLoadedOnce == false)
-            {
-                splashScreen.Show();
-            }
-
-            List<int> ports = new();
-            int startPort = 1234, endport = 1244;
-
-            for (int port = startPort; port <= endport; port++)
-            {
-                string scanMessage = byteLetters.TranslateToBytes(" ");
-                byte[] buffer = Encoding.UTF8.GetBytes(scanMessage);
-
-                try
-                {
-                    await Task.Run(async () =>
-                    {
-                        TcpClient connection = new("127.0.0.1", port);
-                        NetworkStream netStream = connection.GetStream();
-
-                        await netStream.WriteAsync(buffer);
-                        await netStream.FlushAsync();
-                        netStream.Close();
-
-                        ports.Add(port);
-
-                        Trace.WriteLine($"Alive connection on port {port}");
-                    });
-                }
-                catch
-                {
-                    continue;
-                }
-            }
-
-            foreach (int port in ports)
-            {
-                ServerList.Items.Add(port);
-            }
-
-            if (hasLoadedOnce == false)
-            {
-                splashScreen.Close();
-            }
-
-            hasLoadedOnce = true;
-            this.Show();
-        }
-
-        private async void RefreshBtnClick(object sender, RoutedEventArgs e)
-        {
-            ServerList.Items.Clear();
-            await ScanPort();
         }
     }
 }

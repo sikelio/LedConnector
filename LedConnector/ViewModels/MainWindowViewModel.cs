@@ -4,6 +4,7 @@ using LedConnector.Services;
 using LedConnector.Views;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
 using System.Windows;
@@ -17,6 +18,7 @@ namespace LedConnector.ViewModels
         private readonly ByteLetters byteLetters = new ByteLetters();
 
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler ScanCompleted;
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
@@ -35,6 +37,7 @@ namespace LedConnector.ViewModels
         public ICommand EditMsgCmd { get; set; }
         public ICommand DeleteMsgCmd { get; set; }
         public ICommand SendSavedCmd { get; set; }
+        public ICommand RefreshPortsCmd { get; set; }
 
         private string _rawMessage;
         public string RawMessage
@@ -70,7 +73,18 @@ namespace LedConnector.ViewModels
             }
         }
 
-        public ObservableCollection<string> Servers { get; set; }
+        private bool _isScanning;
+        public bool IsScanning
+        {
+            get { return _isScanning; }
+            set
+            {
+                _isScanning = value;
+                OnPropertyChanged(nameof(IsScanning));
+            }
+        }
+
+        public ObservableCollection<int> ServerList { get; set; }
         public ObservableCollection<int> SelectedServers { get; set; }
         public List<Message> Messages { get; set; }
         public ObservableCollection<ShapeBtn> MsgButtons { get; set; }
@@ -78,12 +92,17 @@ namespace LedConnector.ViewModels
 
         public MainWindowViewModel()
         {
+            ServerList = new();
+            SelectedServers = new ObservableCollection<int>();
             SelectedServers = new ObservableCollection<int>();
 
             SaveMsgCmd = new RelayCommand(SaveMessage, CanSaveMessage);
             EditMsgCmd = new RelayCommand(EditMessage, CanEditMessage);
             DeleteMsgCmd = new RelayCommand(DeleteMessage, CanDeleteMessage);
             SendSavedCmd = new RelayCommand(SendSavedMessage, CanSendSavedMessage);
+            RefreshPortsCmd = new RelayCommand(async _ => await ScanPorts(), CanRefreshServerListt);
+
+            _ = ScanPorts();
 
             MsgButtons = new ObservableCollection<ShapeBtn>();
             FilteredMsgButtons = CollectionViewSource.GetDefaultView(MsgButtons);
@@ -291,6 +310,53 @@ namespace LedConnector.ViewModels
             }
         }
 
+        private async Task ScanPorts()
+        {
+            IsScanning = true;
+
+            List<int> ports = new();
+            int startPort = 1234, endport = 1244;
+
+            for (int port = startPort; port <= endport; port++)
+            {
+                string scanMessage = byteLetters.TranslateToBytes(" ");
+                byte[] buffer = Encoding.UTF8.GetBytes(scanMessage);
+
+                try
+                {
+                    await Task.Run(async () =>
+                    {
+                        TcpClient connection = new("127.0.0.1", port);
+                        NetworkStream netStream = connection.GetStream();
+
+                        await netStream.WriteAsync(buffer);
+                        await netStream.FlushAsync();
+                        netStream.Close();
+
+                        ports.Add(port);
+                        Trace.WriteLine($"Alive connection on port {port}");
+                    });
+                }
+                catch
+                {
+                    continue;
+                }
+            }
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                ServerList.Clear();
+
+                foreach (var port in ports)
+                {
+                    ServerList.Add(port);
+                }
+            });
+
+            IsScanning = false;
+            ScanCompleted?.Invoke(this, EventArgs.Empty);
+        }
+
 
 
         private bool CanSaveMessage(object parameter)
@@ -309,6 +375,11 @@ namespace LedConnector.ViewModels
         }
 
         private bool CanSendSavedMessage(object parameter)
+        {
+            return true;
+        }
+
+        private bool CanRefreshServerListt(object parameter)
         {
             return true;
         }
