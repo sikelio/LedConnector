@@ -1,15 +1,20 @@
 ﻿using LedConnector.Components;
 using LedConnector.Models.Database;
+using LedConnector.Models.Dto;
 using LedConnector.Services;
 using LedConnector.Views;
+using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Xml.Linq;
 
 namespace LedConnector.ViewModels
 {
@@ -39,6 +44,8 @@ namespace LedConnector.ViewModels
         public ICommand DeleteMsgCmd { get; set; }
         public ICommand SendSavedCmd { get; set; }
         public ICommand RefreshPortsCmd { get; set; }
+        public ICommand ExportMessagesCmd { get; set; }
+        public ICommand ImportMessagesCmd { get; set; }
 
         private string _rawMessage;
         public string RawMessage
@@ -102,6 +109,8 @@ namespace LedConnector.ViewModels
             DeleteMsgCmd = new RelayCommand(DeleteMessage, CanDeleteMessage);
             SendSavedCmd = new RelayCommand(SendSavedMessage, CanSendSavedMessage);
             RefreshPortsCmd = new RelayCommand(async _ => await ScanPorts(), CanRefreshServerList);
+            ExportMessagesCmd = new RelayCommand(ExportMessages, CanExport);
+            ImportMessagesCmd = new RelayCommand(ImportMessages, CanImport);
 
             _ = ScanPorts();
 
@@ -367,6 +376,86 @@ namespace LedConnector.ViewModels
             ScanCompleted?.Invoke(this, EventArgs.Empty);
         }
 
+        private async void ExportMessages(object parameter)
+        {
+            SaveFileDialog saveFileDialog = new()
+            {
+                Filter = "JSON Files (*.json)|*.json",
+                DefaultExt = "json"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                List<MessageDto> messages = await Query.FindAllMessages();
+
+                JsonSerializerOptions options = new()
+                {
+                    WriteIndented = true
+                };
+
+                string json = JsonSerializer.Serialize(messages, options);
+                await File.WriteAllTextAsync(saveFileDialog.FileName, json);
+
+                MessageBox.Show("Messages exported successfully!");
+            }
+        }
+
+        private async void ImportMessages(object parameter)
+        {
+            OpenFileDialog openFileDialog = new()
+            {
+                Filter = "JSON Files (*.json)|*.json",
+                DefaultExt = "json"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string json = await File.ReadAllTextAsync(openFileDialog.FileName);
+                List<MessageDto>? importedMessages = JsonSerializer.Deserialize<List<MessageDto>>(json);
+
+                if (importedMessages == null)
+                {
+                    MessageBox.Show("Json is invalid or null");
+                    return;
+                }
+
+                foreach (MessageDto message in importedMessages)
+                {
+                    Message newMsg = new()
+                    {
+                        RawMessage = message.RawMessage,
+                        BinaryMessage = message.BinaryMessage,
+                        Tags = new List<Tag>()
+                    };
+
+                    Message addedMsg = await Query.AddMessage(newMsg);
+
+                    foreach (TagDto tag in message.Tags)
+                    {
+                        Tag? dbTag = await Query.FindTagByName(tag.Name);
+
+                        Tag newTag = new()
+                        {
+                            Name = tag.Name
+                        };
+
+                        if (dbTag == null)
+                        {
+                            Tag addedTag = await Query.AddTag(newTag);
+                            await Query.LinkTagToMessage(addedMsg.Id, addedTag.Id);
+                        }
+                        else
+                        {
+                            await Query.LinkTagToMessage(addedMsg.Id, dbTag.Id);
+                        }
+                    }
+                }
+
+                CreateButtons();
+                MessageBox.Show("Messages imported successfully!");
+            }
+        }
+
         private bool CanSendMessage(object parameter)
         {
             return true;
@@ -393,6 +482,16 @@ namespace LedConnector.ViewModels
         }
 
         private bool CanRefreshServerList(object parameter)
+        {
+            return true;
+        }
+
+        private bool CanExport(object parameter)
+        {
+            return true;
+        }
+
+        private bool CanImport(object parameter)
         {
             return true;
         }
